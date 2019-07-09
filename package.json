@@ -6,11 +6,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon app.js",
-    "start-server": "node app.js"
+    "start-server": "node app.js",
+    "ejslint": "./node_modules/.bin/ejslint views/admin/edit-product.ejs"
   },
   "author": "Maximilian Schwarzmüller",
   "license": "ISC",
   "devDependencies": {
+    "ejs-lint": "^0.3.0",
     "nodemon": "^1.18.3"
   },
   "dependencies": {

@@ -7,6 +7,7 @@ exports.getAddProduct = (req, res, next) => {
     editing: false
   });
 };
+//
 
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
