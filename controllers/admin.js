@@ -7,7 +7,6 @@ exports.getAddProduct = (req, res, next) => {
     editing: false
   });
 };
-//
 
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
@@ -21,10 +20,8 @@ exports.postAddProduct = (req, res, next) => {
 
 exports.getEditProduct = (req, res, next) => {
   const editMode = req.query.edit;
-
-  //this is redundant since we already know we want to edit the product, but just in case...
   if (!editMode) {
-    res.redirect('/');
+    return res.redirect('/');
   }
   const prodId = req.params.productId;
   Product.findById(prodId, product => {
@@ -37,24 +34,23 @@ exports.getEditProduct = (req, res, next) => {
       editing: editMode,
       product: product
     });
-  })
+  });
 };
 
 exports.postEditProduct = (req, res, next) => {
-  const prodId = req.body.productId
-  const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
-  const price = req.body.price;
-  const description = req.body.description;
-  const product = new Product(prodId, title, imageUrl, description, price);
-  product.save();
-  res.redirect('/admin/products');
-};
-
-exports.deleteProduct = (req, res, next) => {
-  const prodId = req.body.productId
-  console.log(prodId);
-  Product.deleteById(prodId);
+  const prodId = req.body.productId;
+  const updatedTitle = req.body.title;
+  const updatedPrice = req.body.price;
+  const updatedImageUrl = req.body.imageUrl;
+  const updatedDesc = req.body.description;
+  const updatedProduct = new Product(
+    prodId,
+    updatedTitle,
+    updatedImageUrl,
+    updatedDesc,
+    updatedPrice
+  );
+  updatedProduct.save();
   res.redirect('/admin/products');
 };
 
@@ -66,4 +62,10 @@ exports.getProducts = (req, res, next) => {
       path: '/admin/products'
     });
   });
+};
+
+exports.postDeleteProduct = (req, res, next) => {
+  const prodId = req.body.productId;
+  Product.deleteById(prodId);
+  res.redirect('/admin/products');
 };
