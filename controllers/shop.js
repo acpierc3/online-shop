@@ -28,9 +28,9 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  Product.findById(prodId)
-    .then(([data, metaData]) => {
-      let product = data[0];
+  //sequelize replaced findById with findByPk
+  Product.findByPk(prodId)
+    .then(product => {
       res.render('shop/product-detail', {
         product: product,
         pageTitle: product.title,
