@@ -15,7 +15,8 @@ exports.postAddProduct = (req, res, next) => {
   const description = req.body.description;
 
   //create is a sequelize function that automatically saves object to the database
-  Product.create({
+  //because we defined one to many relation in app.js, the user object has the createProduct method for creating a product assigned to a user
+  req.user.createProduct({
     title: title,
     price: price,
     imageUrl: imageUrl,
