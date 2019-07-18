@@ -182,7 +182,7 @@ exports.postOrder = (req, res, next) => {
 }
 
 exports.getOrders = (req, res, next) => {
-  
+
   //include statement here causes eager loading, so each order includes a product array
   req.user.getOrders({include: ['products']})
   .then(orders => {

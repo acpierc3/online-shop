@@ -9,13 +9,15 @@
             <% if (orders.length <= 0) { %>}
             <h1>Nothing there!</h1>
             <% } else { %>
-                <ul class="order__item-list">
+                <h1>Orders for User#<%= orders[0].userId %></h1>
+                <hr>
+                <ul class="order-list">
                     <% orders.forEach(order => { %>
-                        <li class="order__item">
+                        <li class="order">
                             <h1>Order#<%= order.id %></h1>
                             <ul>
                                 <% order.products.forEach(product => { %>
-                                    <li><%= product.title %> (<%= product.orderItem.quantity %>)</li>
+                                    <li class=""><%= product.title %> (<%= product.orderItem.quantity %>)</li>
                                 <% }); %>
                             </ul>
                         </li>
