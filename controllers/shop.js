@@ -154,6 +154,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
 
 exports.postOrder = (req, res, next) => {
 
+  let fetchedCart;
   let orderProducts;
 
   req.user.getCart()
@@ -168,25 +169,28 @@ exports.postOrder = (req, res, next) => {
       .then(order => {
         return order.addProducts(orderProducts.map(product => {
           product.orderItem = {quantity: product.cartItem.quantity};
-          return product
+          return product;
         }));
       })
-      .then(() => {
+      .then(result => {
+        return fetchedCart.setProducts(null);
+      })
+      .then(result => {
         res.redirect('/orders');
       })
       .catch(err => console.log(err));
 }
 
 exports.getOrders = (req, res, next) => {
-  res.render('shop/orders', {
-    path: '/orders',
-    pageTitle: 'Your Orders'
-  });
-};
-
-exports.getCheckout = (req, res, next) => {
-  res.render('shop/checkout', {
-    path: '/checkout',
-    pageTitle: 'Checkout'
-  });
+  
+  //include statement here causes eager loading, so each order includes a product array
+  req.user.getOrders({include: ['products']})
+  .then(orders => {
+    res.render('shop/orders', {
+      path: '/orders',
+      pageTitle: 'Your Orders',
+      orders: orders
+    });
+  })
+  .catch(err => console.log(err));
 };
