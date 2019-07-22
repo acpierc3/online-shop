@@ -1,32 +1,32 @@
-const PRIVATE = require('./database.priv.js')
+const mongodb = require('mongodb');
+const MongoClient = mongodb.MongoClient;
 
-const Sequelize = require('sequelize');
+const PRIVATE = require('./database.priv.js');
+let _db;
 
-const sequelize = new Sequelize('node-complete', 'root', PRIVATE.PASSWORD, {
-    dialect: 'mysql',
-    host: 'localhost'
-});
+//method for initial connection to database, will stay connected
+const mongoConnect = callback => {
+    MongoClient.connect(
+        'mongodb+srv://node:' +PRIVATE.MONGO_PASSWORD +'@online-shop-dkmzb.mongodb.net/shop?retryWrites=true&w=majority'
+    )
+        .then(client => {
+            console.log('Connected!');
+            _db = client.db();
+            callback(client);
+        })
+        .catch(err => {
+            console.log(err);
+            throw err;
+        });
+}
 
-module.exports = sequelize;
+//method to access already connected database
+const getDb = () => {
+    if(_db) {
+        return _db;
+    }
+    throw 'No database found!';
+}
 
-
-
-
-
-//::::::::::::::::::::::::::::::
-//::::::PRE-SEQUELIZE CODE::::::
-//::::::::::::::::::::::::::::::
-
-// const mysql = require('mysql2');
-// const PRIVATE = require('./database.priv.js')
-
-// //create pool instead of individual connections to DB each time there is a query
-// const pool = mysql.createPool({
-//     host: 'localhost',
-//     user: 'root',
-//     database: 'node-complete',
-//     password: PRIVATE.PASSWORD
-// });
-
-// //use promise here to allow chaining after promise resolution
-// module.exports = pool.promise();
+exports.mongoConnect = mongoConnect;
+exports.getDb = getDb;
