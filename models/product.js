@@ -19,6 +19,21 @@ class Product {
         console.log(err);
       })
   }
+
+  static fetchAll() {
+    const db = getDb();
+    return db.collection('products')
+      .find()
+      //returns array of entire database, only use if you know it is a pretty small collection
+      .toArray()
+      .then(products => {
+        console.log(products);
+        return products;
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
 }
 
 module.exports = Product;
