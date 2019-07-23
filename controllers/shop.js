@@ -1,7 +1,7 @@
 const Product = require('../models/product');
 
 exports.getProducts = (req, res, next) => {
-  Product.findAll()
+  Product.fetchAll()
     .then(products => {
       res.render('shop/product-list', {
         prods: products,
@@ -12,23 +12,12 @@ exports.getProducts = (req, res, next) => {
     .catch(err => {
       console.log(err);
     })
-
-  // Product.fetchAll().then(([data, metaData]) => {
-  //   res.render('shop/product-list', {
-  //     prods: data,
-  //     pageTitle: 'All Products',
-  //     path: '/products'
-  //   });
-  // })
-  // .catch(err => {
-  //   console.log(err)
-  // })
 };
 
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
   //sequelize replaced findById with findByPk
-  Product.findByPk(prodId)
+  Product.findById(prodId)
     .then(product => {
       res.render('shop/product-detail', {
         product: product,
@@ -42,7 +31,7 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  Product.findAll()
+  Product.fetchAll()
     .then(products => {
       res.render('shop/index', {
         prods: products,
@@ -53,18 +42,6 @@ exports.getIndex = (req, res, next) => {
     .catch(err => {
       console.log(err);
     })
-
-  //code before sequelize
-  // Product.fetchAll().then(([data, metaData]) => {
-  //   res.render('shop/index', {
-  //     prods: data,
-  //     pageTitle: 'Shop',
-  //     path: '/'
-  //   });
-  // })
-  // .catch(err => {
-  //   console.log(err)
-  // })
 };
 
 exports.getCart = (req, res, next) => {
@@ -83,26 +60,6 @@ exports.getCart = (req, res, next) => {
         .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
-
-
-  // Cart.getCart(cart => {
-  //   Product.fetchAll(products => {
-  //     const cartProducts = [];
-  //     for (product of products) {
-  //       const cartProductData = cart.products.find(
-  //         prod => prod.id === product.id
-  //       );
-  //       if (cartProductData) {
-  //         cartProducts.push({ productData: product, qty: cartProductData.qty });
-  //       }
-  //     }
-  //     res.render('shop/cart', {
-  //       path: '/cart',
-  //       pageTitle: 'Your Cart',
-  //       products: cartProducts
-  //     });
-  //   });
-  // });
 };
 
 exports.postCart = (req, res, next) => {

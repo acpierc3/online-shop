@@ -7,7 +7,8 @@ let _db;
 //method for initial connection to database, will stay connected
 const mongoConnect = callback => {
     MongoClient.connect(
-        'mongodb+srv://node:' +PRIVATE.MONGO_PASSWORD +'@online-shop-dkmzb.mongodb.net/shop?retryWrites=true&w=majority'
+        'mongodb+srv://node:' +PRIVATE.MONGO_PASSWORD +'@online-shop-dkmzb.mongodb.net/shop?retryWrites=true&w=majority',
+        { useNewUrlParser: true }
     )
         .then(client => {
             console.log('Connected!');
