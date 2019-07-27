@@ -21,7 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => {
     User.findById('5d389abb29cbd416ec3cfcf3')
         .then(user => {
-            //returns user object, complete with utility methods like destroy()
+            //user object from database, with no utility methods like there were with sequelize
             req.user = user;
             next();
         })
