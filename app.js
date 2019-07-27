@@ -21,8 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => {
     User.findById('5d389abb29cbd416ec3cfcf3')
         .then(user => {
-            //user object from database, with no utility methods like there were with sequelize
-            req.user = user;
+            req.user = new User(user.name, user.email, user._id, user.cart);
             next();
         })
         .catch(err => console.log(err));
