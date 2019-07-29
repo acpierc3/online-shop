@@ -94,18 +94,20 @@ class User {
       })
   }
 
-  // static deleteById(prodId) {
-  //   const db = getDb();
-  //   return db.collection('products')
-  //     .deleteOne({_id: new mongodb.ObjectId(prodId)})
-  //     .then(result => {
-  //       console.log(result);
-  //       return result;
-  //     })
-  //     .catch(err => {
-  //       console.log(err);
-  //     })
-  // }
+  deleteItemFromCart(prodId) {
+    const updatedCart = {
+      ...this.cart,
+      items: this.cart.items.filter(prod => {
+        return prod.productId.toString() !== prodId.toString();
+      })
+    }
+    const db = getDb();
+    return db.collection('users')
+      .updateOne(
+        {_id: new mongodb.ObjectId(this._id)},
+        {$set: {cart: updatedCart}}
+      )    //$set completely overrides old cart with new cart
+  }
 
 }
 
