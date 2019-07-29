@@ -57,6 +57,28 @@ class User {
   //     })
   // }
 
+  getCart() {
+    const db = getDb();
+    const productIds = this.cart.items.map(cp => {
+      return cp.productId;
+    })
+    //$in keyword returns any objects which have an id in specified array
+    return db.collection('products')
+      .find({_id: {$in: productIds}})
+      .toArray()
+      .then(products => {
+        return products.map(product => {
+          //using arrow functions allows the this here to still refer to overall class instead of creating new encapsulation
+          return {
+            ...product,
+            quantity: this.cart.items.find(i => {
+              return i.productId.toString() === product._id.toString();
+            }).quantity
+          };
+        });
+      });
+  }
+
   static findById(prodId) {
     const db = getDb();
     return db.collection('users')
