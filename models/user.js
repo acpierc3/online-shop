@@ -22,12 +22,31 @@ class User {
   }
 
   addToCart(product) {
-    // const cartProduct = this.cart.items.findIndex(cp => {
-    //   return cp._id === product._id;
-    // });
+    const cartProductIndex = this.cart.items.findIndex(cp => {
+      return cp.productId.toString() === product._id.toString();
+    });
+
     const updatedCart = {
-      items: [{productId: new mongodb.ObjectId(product._id), quantity: 1}]
-    };
+      ...this.cart,
+      items: [...this.cart.items]
+    }
+
+    if (cartProductIndex > -1) {
+      console.log("UPDATED");
+      updatedCart.items[cartProductIndex].quantity++;
+    } else {
+      console.log("ADDED NEW CART ITEM");
+      updatedCart.items.push({productId: new mongodb.ObjectId(product._id), quantity: 1});
+    }
+
+
+
+
+
+
+    // const updatedCart = {
+    //   items: [{productId: new mongodb.ObjectId(product._id), quantity: 1}]
+    // };
     const db = getDb();
     return db.collection('users')
       .updateOne(
