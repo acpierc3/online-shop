@@ -22,12 +22,18 @@ class User {
   }
 
   addToCart(product) {
-    // const cartProduct = this.cart.items.findIndex(cp => {
-    //   return cp._id === product._id;
-    // });
+    const cartProductIndex = this.cart.items.findIndex(cp => {
+      return cp.productId.toString() === product._id.toString();
+    });
     const updatedCart = {
-      items: [{productId: new mongodb.ObjectId(product._id), quantity: 1}]
-    };
+      ...this.cart,
+      items: [...this.cart.items]
+    }
+    if (cartProductIndex > -1) {
+      updatedCart.items[cartProductIndex].quantity++;
+    } else {
+      updatedCart.items.push({productId: new mongodb.ObjectId(product._id), quantity: 1});
+    }
     const db = getDb();
     return db.collection('users')
       .updateOne(
@@ -50,6 +56,28 @@ class User {
   //       console.log(err);
   //     })
   // }
+
+  getCart() {
+    const db = getDb();
+    const productIds = this.cart.items.map(cp => {
+      return cp.productId;
+    })
+    //$in keyword returns any objects which have an id in specified array
+    return db.collection('products')
+      .find({_id: {$in: productIds}})
+      .toArray()
+      .then(products => {
+        return products.map(product => {
+          //using arrow functions allows the this here to still refer to overall class instead of creating new encapsulation
+          return {
+            ...product,
+            quantity: this.cart.items.find(i => {
+              return i.productId.toString() === product._id.toString();
+            }).quantity
+          };
+        });
+      });
+  }
 
   static findById(prodId) {
     const db = getDb();
