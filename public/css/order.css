@@ -1,22 +1,28 @@
 .order-list {
-    list-style: none;
+    list-style-type: none;
     margin: 0;
     padding: 0;
     margin: auto;
-    width: 40rem;
-    max-width: 90%;
+    width: 100%;
 }
 
 .order {
-    display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 1rem;
+    border: 3px solid green;
+    margin: 1rem auto;
+    width: 100%;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
 }
 
-.order__item 
+.order__item-list {
+    list-style: none;
+}
   
+order__item {
+
+}
 
   
   
