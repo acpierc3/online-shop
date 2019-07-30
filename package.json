@@ -9,7 +9,7 @@
     "start-server": "node app.js",
     "ejslint": "./node_modules/.bin/ejslint views/admin/edit-product.ejs"
   },
-  "author": "Maximilian Schwarzmüller",
+  "author": "",
   "license": "ISC",
   "devDependencies": {
     "ejs-lint": "^0.3.0",
