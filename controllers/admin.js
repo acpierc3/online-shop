@@ -18,7 +18,8 @@ exports.postAddProduct = (req, res, next) => {
     title: title, 
     price: price, 
     description: description, 
-    imageUrl: imageUrl
+    imageUrl: imageUrl,
+    userId: req.user._id
   });
 
   product.save()
@@ -57,14 +58,14 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.postEditProduct = (req, res, next) => {
 
-  const _id = req.body.productId;
-  const updatedTitle = req.body.title;
-  const updatedPrice = req.body.price;
-  const updatedImageUrl = req.body.imageUrl;
-  const updatedDesc = req.body.description;
-
-  const product = new Product(updatedTitle, updatedPrice, updatedDesc, updatedImageUrl, _id, req.user._id);
-  product.save()
+  Product.findById(req.body.productId)
+    .then(product => {
+      product.title = req.body.title;
+      product.price = req.body.price;
+      product.imageUrl = req.body.imageUrl;
+      product.description = req.body.description;
+      return product.save();
+    })
     .then(result => {
       console.log("product updated");
       res.redirect('/admin/products');
@@ -74,7 +75,11 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
+  //can use populate to easily populate info from a related table
+  //can use select to only select certain columns from a table
+    // .select('title price -_id')
+    // .populate('userId', 'name')
     .then(products => {
       res.render('admin/products', {
         prods: products,
@@ -89,7 +94,7 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteById(prodId)
+  Product.findByIdAndRemove(prodId)
     .then(() => {
       res.redirect('/admin/products');
     })
