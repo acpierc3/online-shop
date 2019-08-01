@@ -17,7 +17,6 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  //sequelize replaced findById with findByPk
   Product.findById(prodId)
     .then(product => {
       res.render('shop/product-detail', {
