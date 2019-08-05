@@ -37,6 +37,19 @@ app.use(
     })
 );
 
+app.use((req, res, next) => {
+    if (!req.session.user) {
+        return next();
+    }
+    User.findById(req.session.user._id)
+    .then(user => {
+        //user here is full mongoose model object, including all helper methods
+        req.user = user;
+        next();
+    })
+    .catch(err => console.log(err));
+})
+
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
