@@ -20,17 +20,31 @@ exports.getSignup = (req, res, next) => {
 
 
 exports.postLogin = (req, res, next) => {
+    const email = req.body.email;
+    const password = req.body.password;
 
-    User.findById('5d431da60f54ac4e98c52383')
+    User.findOne({email: email})
     .then(user => {
-        //user here is full mongoose model object, including all helper methods.
-        req.session.isLoggedIn = true;
-        req.session.user = user;
-        //normally dont need to save session, but this allows us to add callback function so we are only redirected once session has been stored in DB (prevents potential race conditions)
-        req.session.save(err => {
-            console.log(err);
-            res.redirect('/');
-        })
+        if (!user) {
+            return res.redirect('/login');
+        }
+        bcrypt.compare(password, user.password)
+            .then(matching => {
+                if(matching) {
+                    req.session.isLoggedIn = true;
+                    req.session.user = user;
+                    return req.session.save(err => {
+                        console.log(err);
+                        res.redirect('/');
+                    })
+                }
+                res.redirect('/login');
+            })
+            .catch(err => {
+                console.log(err);
+                res.redirect('/login');
+            });
+        
         
     })
     .catch(err => console.log(err));
