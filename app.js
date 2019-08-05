@@ -28,6 +28,7 @@ const authRoutes = require('./routes/auth');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(
+    //this middleware automatically creates / reads cookies along with the session
     session({
         secret: PRIVATE.SESSION_SECRET, 
         resave: false, 
@@ -35,16 +36,6 @@ app.use(
         store: store
     })
 );
-
-app.use((req, res, next) => {
-    User.findById('5d431da60f54ac4e98c52383')
-        .then(user => {
-            //user here is full mongoose model object, including all helper methods
-            req.user = user;
-            next();
-        })
-        .catch(err => console.log(err));
-})
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
