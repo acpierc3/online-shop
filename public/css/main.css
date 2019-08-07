@@ -226,6 +226,13 @@ form {
   color: white;
 }
 
+.user-message {
+  margin: auto;
+  color: red;
+  text-align: center;
+  padding: 1rem;
+}
+
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;
