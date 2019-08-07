@@ -6,7 +6,7 @@
         <%- include('../includes/navigation.ejs') %>
         <main>
 
-            <% if (orders.length <= 0) { %>}
+            <% if (orders.length <= 0) { %>
             <h1>Nothing there!</h1>
             <% } else { %>
                 <h1>Orders for <%= orders[0].user.name %></h1>
