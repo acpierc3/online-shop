@@ -89,7 +89,7 @@ exports.postSignup = (req, res, next) => {
                         to: email,
                         from: 'shop@node.com',
                         subject: 'Your New Account!',
-                        html: '<h1>You successfully signeed up!</h1>'
+                        html: '<h1>You successfully signed up!</h1>'
                     })
                 })
                 .catch(err => console.log(err));
@@ -146,4 +146,49 @@ exports.postReset = (req, res, next) => {
         })
         .catch(err => console.log(err));
     })
+}
+
+exports.getNewPassword = (req, res, next) => {
+    const token = req.params.token;
+    User.findOne({resetToken: token, resetTokenExpiration: {$gt: Date.now()}})
+        .then(user => {
+            res.render('auth/new-password', {
+                path: '/new-password',
+                pageTitle: 'New Password',
+                errorMessage: req.flash('error')[0],
+                userId: user._id.toString(),
+                passwordToken: token
+            });
+        })
+        .catch(err => console.log(err));
+}
+
+exports.postNewPassword = (req, res, next) => {
+    // console.log("POST NEW PASSWORD")
+    let storeUser;
+
+    User.findOne({
+        resetToken: req.body.passwordToken, 
+        resetTokenExpiration: {$gt: Date.now()},
+        _id: req.body.userId
+    })
+    .then(user => {
+        if (!user) {
+            req.flash('error', 'No account with that email found.');
+            return res.redirect('/reset');
+        }
+        storeUser = user;
+        return bcrypt.hash(req.body.password, 12)
+    })
+    .then(hashedPassword => {
+        storeUser.password = hashedPassword;
+        storeUser.resetToken = undefined;
+        storeUser.resetTokenExpiration = undefined;
+        return storeUser.save();
+    })
+    .then(result => {
+        console.log("password successfully updated");
+        res.redirect('/login');
+    })
+    .catch(err => console.log(err));
 }
