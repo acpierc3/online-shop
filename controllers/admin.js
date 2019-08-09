@@ -63,15 +63,19 @@ exports.postEditProduct = (req, res, next) => {
 
   Product.findById(req.body.productId)
     .then(product => {
+      //double check user has access to modify this product
+      if (product.userId !== req.user._id) {
+        return res.redirect('/');
+      }
       product.title = req.body.title;
       product.price = req.body.price;
       product.imageUrl = req.body.imageUrl;
       product.description = req.body.description;
-      return product.save();
-    })
-    .then(result => {
-      console.log("product updated");
-      res.redirect('/admin/products');
+      return product.save()
+        .then(result => {
+          console.log("product updated");
+          res.redirect('/admin/products');
+      })
     })
     .catch(err => console.log(err))
 
