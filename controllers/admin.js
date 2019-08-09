@@ -78,11 +78,7 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.find()
-  //can use populate to easily populate info from a related table
-  //can use select to only select certain columns from a table
-    // .select('title price -_id')
-    // .populate('userId', 'name')
+  Product.find({userId: req.user._id})
     .then(products => {
       res.render('admin/products', {
         prods: products,

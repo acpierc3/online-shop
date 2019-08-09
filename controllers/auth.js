@@ -187,7 +187,6 @@ exports.postNewPassword = (req, res, next) => {
         return storeUser.save();
     })
     .then(result => {
-        console.log("password successfully updated");
         res.redirect('/login');
     })
     .catch(err => console.log(err));
