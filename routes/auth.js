@@ -1,6 +1,7 @@
 // const path = require('path');
 
 const express = require('express');
+const {check} = require('express-validator/check');
 
 const authController = require('../controllers/auth');
 
@@ -16,7 +17,8 @@ router.get('/reset/:token', authController.getNewPassword);
 
 router.post('/login', authController.postLogin);
 
-router.post('/signup', authController.postSignup);
+//check function validates email html field. will store errors in an object and pass them along
+router.post('/signup', check('email').isEmail(), authController.postSignup);
 
 router.post('/logout', authController.postLogout);
 
