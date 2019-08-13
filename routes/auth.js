@@ -19,7 +19,7 @@ router.get('/reset/:token', authController.getNewPassword);
 router.post('/login', 
     [
         check('email').isEmail().withMessage('Please enter a valid email'),
-        body('password', 'Password is incorrect').isLength({min: 5}).isAlphanumeric()
+        body('password', 'Password is invalid').isLength({min: 5}).isAlphanumeric()
     ],
     authController.postLogin);
 

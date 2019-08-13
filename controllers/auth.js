@@ -18,7 +18,12 @@ exports.getLogin = (req, res, next) => {
     res.render('auth/login', {
         path: '/login',
         pageTitle: 'Login',
-        errorMessage: req.flash('error')[0]
+        errorMessage: req.flash('error')[0],
+        oldInput: {
+            email: "", 
+            password: ""
+        },
+        validationErrors: []
     });
 };
 
@@ -46,16 +51,27 @@ exports.postLogin = (req, res, next) => {
         return res.status(422).render('auth/login', {
             path: '/login',
             pageTitle: 'Login',
-            errorMessage: errors.array()[0].msg
+            errorMessage: errors.array()[0].msg,
+            oldInput: {
+                email: email, 
+                password: password
+            },
+            validationErrors: errors.array()
         });
     }
     User.findOne({email: email})
     .then(user => {
         if (!user) {
-            //flash is a 3rd party middleware library that temporarily stores some data inbetween requests, then deletes once its used, allowing you to store something like this error message temporarily
-            //alternatively we could just res.render the login page with the error message included
-            req.flash('error', 'Invalid email or password.')
-            return res.redirect('/login');
+            return res.status(422).render('auth/login', {
+                path: '/login',
+                pageTitle: 'Login',
+                errorMessage: 'Invalid email or password.',
+                oldInput: {
+                    email: email, 
+                    password: password
+                },
+                validationErrors: []
+            });
         }
         bcrypt.compare(password, user.password)
             .then(matching => {
@@ -67,7 +83,16 @@ exports.postLogin = (req, res, next) => {
                         res.redirect('/');
                     })
                 }
-                res.redirect('/login');
+                return res.status(422).render('auth/login', {
+                    path: '/login',
+                    pageTitle: 'Login',
+                    errorMessage: 'Invalid email or password.',
+                    oldInput: {
+                        email: email, 
+                        password: password
+                    },
+                    validationErrors: []
+                });
             })
             .catch(err => {
                 console.log(err);
