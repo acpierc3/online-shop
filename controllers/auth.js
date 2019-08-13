@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
-const {validationResult} = require('express-validator/check')
+const {validationResult} = require('express-validator')
 
 const User = require('../models/user');
 const PRIVATE = require('../util/database.priv.js');
@@ -68,7 +68,6 @@ exports.postLogin = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    const confirmPassword = req.body.confirmPassword;
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
         //don't want to redirect if validation fails, want to return to same page
@@ -78,31 +77,25 @@ exports.postSignup = (req, res, next) => {
             errorMessage: errors.array()[0].msg
         });
     }
-    User.findOne({email: email})
-        .then(userDoc => {
-            if (userDoc) {
-                req.flash('error', 'Email exists already.')
-                return res.redirect('/signup');
-            }
-            return bcrypt.hash(password, 12)
-                .then(hashedPassword => {
-                    const user = new User({
-                        email: email,
-                        password: hashedPassword,
-                        cart: {items: []}
-                    });
-                    return user.save();
-                })
-                .then(result => {
-                    res.redirect('/login');
-                    return transporter.sendMail({
-                        to: email,
-                        from: 'shop@node.com',
-                        subject: 'Your New Account!',
-                        html: '<h1>You successfully signed up!</h1>'
-                    })
-                })
-                .catch(err => console.log(err));
+    //we know that user / password are good at this point because we've already checked 
+    //in the middleware before this function
+    bcrypt.hash(password, 12)
+        .then(hashedPassword => {
+            const user = new User({
+                email: email,
+                password: hashedPassword,
+                cart: {items: []}
+            });
+            return user.save();
+        })
+        .then(result => {
+            res.redirect('/login');
+            return transporter.sendMail({
+                to: email,
+                from: 'shop@node.com',
+                subject: 'Your New Account!',
+                html: '<h1>You successfully signed up!</h1>'
+            })
         })
         .catch(err => console.log(err));
 };
