@@ -18,8 +18,8 @@ router.get('/reset/:token', authController.getNewPassword);
 
 router.post('/login', 
     [
-        check('email').isEmail().withMessage('Please enter a valid email'),
-        body('password', 'Password is invalid').isLength({min: 5}).isAlphanumeric()
+        check('email').isEmail().withMessage('Please enter a valid email').normalizeEmail(),
+        body('password', 'Password is invalid').isLength({min: 5}).isAlphanumeric().trim()
     ],
     authController.postLogin);
 
@@ -35,14 +35,14 @@ router.post('/signup',
                     return Promise.reject('Email exists already.');
                 }
             })
-        }),
-        body('password', 'Passowrd should be more than 5 characters and only alphanumeric').isLength({min: 5}).isAlphanumeric(),
+        }).normalizeEmail(),
+        body('password', 'Passowrd should be more than 5 characters and only alphanumeric').isLength({min: 5}).isAlphanumeric().trim(),
         body('confirmPassword').custom((value, {req}) => {
             if (value !== req.body.password) {
                 throw new Error('Passwords have to match!');
             }
             return true;
-        })
+        }).trim()
     ], authController.postSignup);
 
 router.post('/logout', authController.postLogout);

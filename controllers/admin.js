@@ -1,3 +1,5 @@
+const {validationResult} = require('express-validator');
+
 const Product = require('../models/product');
 
 exports.getAddProduct = (req, res, next) => {
@@ -7,7 +9,10 @@ exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
-    editing: false
+    hasError: false,
+    editing: false,
+    errorMessage: null,
+    validationErrors: []
   });
 };
 
@@ -17,6 +22,23 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
+  const errors = validationResult(req);
+  if(!errors.isEmpty()) {
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Add Product',
+      path: '/admin/edit-product',
+      editing: false,
+      hasError: true,
+      product: {
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description
+      },
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array()
+    })
+  }
   const product = new Product({
     title: title, 
     price: price, 
@@ -51,7 +73,10 @@ exports.getEditProduct = (req, res, next) => {
         pageTitle: 'Edit Product',
         path: '/admin/edit-product',
         editing: editMode,
-        product: product
+        hasError: false,
+        product: product,
+        errorMessage: null,
+        validationErrors: []
       })
     })
     .catch(err => {
@@ -60,6 +85,26 @@ exports.getEditProduct = (req, res, next) => {
 };
 
 exports.postEditProduct = (req, res, next) => {
+
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()) {
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Edit Product',
+      path: '/admin/edit-product',
+      editing: true,
+      hasError: true,
+      product: {
+        title: req.body.title,
+        imageUrl: req.body.imageUrl,
+        price: req.body.price,
+        description: req.body.description,
+        _id: req.body.productId
+      },
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array()
+    })
+  }
 
   Product.findById(req.body.productId)
     .then(product => {
@@ -73,7 +118,6 @@ exports.postEditProduct = (req, res, next) => {
       product.description = req.body.description;
       return product.save()
         .then(result => {
-          console.log("product updated");
           res.redirect('/admin/products');
       })
     })
