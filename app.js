@@ -48,11 +48,14 @@ app.use((req, res, next) => {
     }
     User.findById(req.session.user._id)
     .then(user => {
+        if(!user) {
+            return next();
+        }
         //user here is full mongoose model object, including all helper methods
         req.user = user;
         next();
     })
-    .catch(err => console.log(err));
+    .catch(err => {throw new Error(err)});
 })
 
 app.use((req, res, next) => {
