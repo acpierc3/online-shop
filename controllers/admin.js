@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const {validationResult} = require('express-validator');
 
 const Product = require('../models/product');
@@ -26,7 +28,7 @@ exports.postAddProduct = (req, res, next) => {
   if(!errors.isEmpty()) {
     return res.status(422).render('admin/edit-product', {
       pageTitle: 'Add Product',
-      path: '/admin/edit-product',
+      path: '/admin/add-product',
       editing: false,
       hasError: true,
       product: {
@@ -53,7 +55,30 @@ exports.postAddProduct = (req, res, next) => {
     res.redirect('/admin/products');
   })
   .catch(err => {
-    console.log(err);
+    // could render page with a user error message
+
+    // return res.status(500).render('admin/edit-product', {
+    //   pageTitle: 'Add Product',
+    //   path: '/admin/add-product',
+    //   editing: false,
+    //   hasError: true,
+    //   product: {
+    //     title: title,
+    //     imageUrl: imageUrl,
+    //     price: price,
+    //     description: description
+    //   },
+    //   errorMessage: 'Database operation failed, please try again',
+    //   validationErrors: []
+    // })
+
+    // also could redirect to a 500 page
+    // res.redirect('/500');
+
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    //when you call next with an error argument, express will automatically skip other middlewares to the error handling
+    return next(error);
   })
 };
 
@@ -121,7 +146,11 @@ exports.postEditProduct = (req, res, next) => {
           res.redirect('/admin/products');
       })
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    })
 
 };
 
