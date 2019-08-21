@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const PDFDocument = require('pdfkit');
+
 const Product = require('../models/product');
 const Order = require('../models/order');
 
@@ -136,14 +138,50 @@ exports.getInvoice = (req, res, next) => {
     if (order.user.userId.toString() !== req.user._id.toString()) {
       return next(new Error('Unauthorized'));
     } else {
-      fs.readFile(invoicePath, (err, data) => {
-        if(err) {
-          return next(err)
-        }
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName +'"')
-        res.send(data);
+      //below is bad practice for many/large files, 
+      //because Node has to read the entire file into memory and 
+      //then send it, should use a stream/buffer instead
+    //   fs.readFile(invoicePath, (err, data) => {
+    //     if(err) {
+    //       return next(err)
+    //     }
+    //     res.setHeader('Content-Type', 'application/pdf');
+    //     res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName +'"')
+    //     res.send(data);
+    //   })
+    // }
+
+      //using this stream/pipe method immediately forwards chunks of data
+      //read through streams to the client, which will then combine into 
+      //the complete file
+      
+      // const file = fs.createReadStream(invoicePath);
+      // res.setHeader('Content-Type', 'application/pdf');
+      // res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName +'"')
+      // file.pipe(res);
+      
+
+      const pdfDoc = new PDFDocument();
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName +'"')
+      //pipes data to filesystem
+      pdfDoc.pipe(fs.createWriteStream(invoicePath));
+      //pipes data(pdf) to client
+      pdfDoc.pipe(res);
+
+      pdfDoc.fontSize(26).text('Invoice', {
+        underline: true
+      });
+      pdfDoc.fontSize(18).text('-------------------------------------');
+      let totalPrice = 0;
+      order.products.forEach(prod => {
+        totalPrice += prod.quantity * prod.product.price;
+        pdfDoc.text(prod.product.title + ' - ' +prod.quantity +' x ' +'$' +prod.product.price)
       })
+      pdfDoc.text('-------------------------------------');
+      pdfDoc.fontSize(20).text('Total Price' +' - $' +totalPrice);
+      pdfDoc.end();
+
     }
   })
   .catch(err => next(err));
