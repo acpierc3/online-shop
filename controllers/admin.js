@@ -138,7 +138,6 @@ exports.postEditProduct = (req, res, next) => {
       hasError: true,
       product: {
         title: req.body.title,
-        imageUrl: req.body.imageUrl,
         price: req.body.price,
         description: req.body.description,
         _id: req.body.productId
@@ -156,8 +155,11 @@ exports.postEditProduct = (req, res, next) => {
       }
       product.title = req.body.title;
       product.price = req.body.price;
-      product.imageUrl = req.body.imageUrl;
       product.description = req.body.description;
+      //if there is an image, save the path to the DB
+      if (req.file) {
+        product.imageUrl = image.path
+      }
       return product.save()
         .then(result => {
           res.redirect('/admin/products');
