@@ -11,9 +11,8 @@ const ITEMS_PER_PAGE = 2;
 exports.getProducts = (req, res, next) => {
   const page = Number(req.query.page) || 1;
   let totalItems;
-  // <% if (pagination.hasPrev) { %>
   Product.find()
-    .countDocuments()
+    .countDocuments() //count documents does not retrieve all docs, and is therefore much faster operation
     .then(numProducts => {
       totalItems = numProducts;
       return Product.find()
