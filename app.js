@@ -10,6 +10,8 @@ const flash = require('connect-flash');
 const multer = require('multer');
 
 const errorController = require('./controllers/error');
+const shopController = require('./controllers/shop');
+const isAuth = require('./middleware/is-auth');
 const User = require('./models/user');
 const PRIVATE = require('./util/database.priv.js');
 
@@ -59,12 +61,11 @@ app.use(
         store: store
     })
 );
-app.use(csrfProtection);
+
 app.use(flash());
 
 app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.isLoggedIn;
-    res.locals.csrfToken = req.csrfToken();
     next();
 });
 
@@ -87,6 +88,17 @@ app.use((req, res, next) => {
     });
 })
 
+app.post('/create-order', isAuth, shopController.postOrder);
+
+//csrf protection enabled only after create order / Stripe route
+//because we dont need csrf protection for create-order,
+//it is protected by Stripe
+app.use(csrfProtection); 
+app.use((req, res, next) => {
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
+
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
@@ -96,6 +108,7 @@ app.use(errorController.get404);
 
 //error handling middle ware takes 4 args
 app.use((error, req, res, next) => {
+    console.log(error)
     res.redirect('/500')
 })
 

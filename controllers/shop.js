@@ -1,7 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
+const PRIVATE = require('../util/database.priv.js');
+
 const PDFDocument = require('pdfkit');
+const stripe = require('stripe')(PRIVATE.STRIPE_API_KEY);
 
 const Product = require('../models/product');
 const Order = require('../models/order');
@@ -153,10 +156,16 @@ exports.getCheckout = (req, res, next) => {
 
 exports.postOrder = (req, res, next) => {
 
+  const token = req.body.stripeToken;
+  let sum;
+  
+
   req.user.populate('cart.items.productId')
     .execPopulate()
     .then(user => {
-      console.log(user.cart.items);
+      sum = user.cart.items.reduce((acc, prod) => {
+        return acc + (prod.quantity * prod.productId.price);
+      }, 0);
       const products = user.cart.items.map(i => {
         //._doc strips out all other properties that come back with the document and only retrieves fields that belong in the schema
         return {quantity: i.quantity, product: {...i.productId._doc}}
@@ -171,6 +180,15 @@ exports.postOrder = (req, res, next) => {
       return order.save()
     })
     .then(result => {
+      const charge = stripe.charges.create({
+        amount: sum * 100,
+        currency: 'usd',
+        description: 'Demo Order - ' +Date.now(),
+        source: token,
+        metadata: {
+          order_id: result._id.toString()
+        }
+      });
       return req.user.clearCart();
     })
     .then(result => {
