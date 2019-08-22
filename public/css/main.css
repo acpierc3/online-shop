@@ -253,6 +253,10 @@ form {
   color: white;
 }
 
+.hidden {
+  visibility: hidden;
+}
+
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;
