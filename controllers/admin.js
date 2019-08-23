@@ -4,6 +4,8 @@ const {validationResult} = require('express-validator');
 const Product = require('../models/product');
 const fileHelper = require('../util/file');
 
+const ITEMS_PER_PAGE = 2;
+
 exports.getAddProduct = (req, res, next) => {
   if (!req.session.isLoggedIn) {
     return res.redirect('/login');
@@ -175,12 +177,29 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
+  const page = Number(req.query.page) || 1;
+  let totalItems;
   Product.find({userId: req.user._id})
+    .countDocuments() //count documents does not retrieve all docs, and is therefore much faster operation
+    .then(numProducts => {
+      totalItems = numProducts;
+      return Product.find()
+        .skip((page-1)*ITEMS_PER_PAGE)//does not load items from previous pages
+        .limit(ITEMS_PER_PAGE)//only load items for current page
+    })
     .then(products => {
       res.render('admin/products', {
         prods: products,
         pageTitle: 'Admin Products',
-        path: '/admin/products'
+        path: '/admin/products',
+        pagination: {
+          curr: page,
+          hasNext: ITEMS_PER_PAGE * page < totalItems,
+          hasPrev: page > 1,
+          next: page + 1,
+          prev: page - 1,
+          last: Math.ceil(totalItems / ITEMS_PER_PAGE)
+        }
       });
     })
     .catch(err => {
@@ -188,6 +207,28 @@ exports.getProducts = (req, res, next) => {
       error.httpStatusCode = 500;
       return next(error);
     })
+
+  // Product.find({userId: req.user._id})
+  //   .then(products => {
+  //     res.render('admin/products', {
+  //       prods: products,
+  //       pageTitle: 'Admin Products',
+  //       path: '/admin/products',
+  //       pagination: {
+  //         curr: page,
+  //         hasNext: ITEMS_PER_PAGE * page < totalItems,
+  //         hasPrev: page > 1,
+  //         next: page + 1,
+  //         prev: page - 1,
+  //         last: Math.ceil(totalItems / ITEMS_PER_PAGE)
+  //       }
+  //     });
+  //   })
+  //   .catch(err => {
+  //     const error = new Error(err);
+  //     error.httpStatusCode = 500;
+  //     return next(error);
+  //   })
 };
 
 exports.postDeleteProduct = (req, res, next) => {
