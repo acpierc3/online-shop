@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon app.js",
     "start-server": "node app.js",
+    "start:dev": "nodemon app.js",
     "ejslint": "./node_modules/.bin/ejslint views/admin/edit-product.ejs"
   },
   "author": "",
