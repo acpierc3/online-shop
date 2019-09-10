@@ -2,3 +2,4 @@ node_modules
 util/database.priv.js
 images
 data/invoices
+nodemon.json
