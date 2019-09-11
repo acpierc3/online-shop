@@ -14,7 +14,7 @@ const multer = require('multer');
 const helmet = require('helmet');
 //compresses assets, possibly not needed if hosting provider already does this
 const compression = require('compression');
-//morgan 
+//morgan creates logs of requests/responses, this can also be done by hosting provider
 const morgan = require('morgan');
 
 const errorController = require('./controllers/error');
