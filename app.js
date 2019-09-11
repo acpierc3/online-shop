@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -7,9 +8,14 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
+//multer handles multipart form data (uploading files)
 const multer = require('multer');
+//helmet adds secure headers to responses
 const helmet = require('helmet');
+//compresses assets, possibly not needed if hosting provider already does this
 const compression = require('compression');
+//morgan 
+const morgan = require('morgan');
 
 const errorController = require('./controllers/error');
 const shopController = require('./controllers/shop');
@@ -50,8 +56,12 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
+
 app.use(helmet());
 app.use(compression());
+//will log all requests to this file stream
+app.use(morgan('combined', {stream: accessLogStream}));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));

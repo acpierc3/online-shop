@@ -3,3 +3,4 @@ util/database.priv.js
 images
 data/invoices
 nodemon.json
+access.log
